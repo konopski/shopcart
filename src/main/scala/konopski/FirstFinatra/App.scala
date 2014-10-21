@@ -102,7 +102,11 @@ object App extends FinatraServer {
     }
 
     def put(user: String, prod: ProductName, q: Quantity) = {
-      if(DataBase.has(user, prod)) DataBase.updateQuantity(user, prod, q)
+      if(DataBase.has(user, prod)) {
+        if(q>0) DataBase.updateQuantity(user, prod, q)
+        else if(q==0) DataBase.delete(user, prod)
+        else throw new IllegalArgumentException
+      }
       else DataBase.addToOrder(user, prod, q)
     }
   }

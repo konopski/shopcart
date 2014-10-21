@@ -142,7 +142,7 @@ object App extends FinatraServer {
             case Some(map: Map[String, Any]) => {
               val product = map("product").asInstanceOf[ProductName]
               UpdateService.delete(user, product)
-              render.status(200).toFuture
+              render.plain("SUCCESS").toFuture
             }
             case _ => log.error("unmatched json payload") ;throw new BadRequest
           }
@@ -155,7 +155,7 @@ object App extends FinatraServer {
     delete("/order/all") { request =>
       val user = request.headers().get(USER_HEADER)
       UpdateService.deleteAll(user)
-      render.status(200).toFuture
+      render.plain("SUCCESS").toFuture
     }
 
     get("/order") { request =>

@@ -1,4 +1,28 @@
-# FirstFinatra
+# ShopCart
+
+##example curls
+
+### login verification
+
+    curl -v -XGET -HX-USER:lk localhost:7070/whoami
+
+### add product to cart
+
+    curl -HX-USER:kp -Haccept:application/json -XPUT localhost:7070/order -d "{\"product\":\"new one\", \"quantity\":5}"
+
+### query cart
+
+    curl -HX-USER:kp -XGET localhost:7070/order
+
+### delete product
+
+    curl -HX-USER:kp -Haccept:application/json -XDELETE localhost:7070/order -d "{\"product\":\"new one\"}"
+
+### delete all products in cart
+
+    curl -HX-USER:kp -XDELETE localhost:7070/order/all
+
+
 
 Finatra requires either [maven](http://maven.apache.org/) or [sbt](http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html) to build and run your app.
 

@@ -1,9 +1,10 @@
 package konopski.FirstFinatra
 
+import org.jboss.netty.handler.codec.http.HttpMethod
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import com.twitter.finatra.test._
-import com.twitter.finatra.FinatraServer
+import com.twitter.finatra.{Request, FinatraServer}
 import konopski.FirstFinatra._
 
 class AppSpec extends FlatSpecHelper {
@@ -48,7 +49,22 @@ class AppSpec extends FlatSpecHelper {
   "DELETE /order/all" should "respond 200" in {
     delete("/order/all", headers=Map("X-USER" -> "rw"))
     response.code should equal(200)
-    get("/order", headers=Map("X-USER" -> "any"))
+    get("/order", headers=Map("X-USER" -> "rw"))
+    response.body.replaceAll("\\s", "").contains("\"totalPrice\":0") should equal(true)
+    response.body.replaceAll("\\s", "").contains("\"products\":[]") should equal(true)
+
+  }
+
+  "DELETE /order" should "respond 200" in {
+    val deleteRequest = Request("/order")
+    deleteRequest.httpRequest.setMethod(HttpMethod.DELETE)
+    deleteRequest.httpRequest.accept="application/json"
+    deleteRequest.httpRequest.setContentString( "{\"product\":\"prod1\"}" )
+    deleteRequest.httpRequest.headers().add("X-USER", "lk")
+    send(deleteRequest)
+
+    response.code should equal(200)
+    get("/order", headers=Map("X-USER" -> "lk"))
     response.body.replaceAll("\\s", "").contains("\"totalPrice\":0") should equal(true)
     response.body.replaceAll("\\s", "").contains("\"products\":[]") should equal(true)
 

@@ -79,6 +79,12 @@ object App extends FinatraServer {
       data.put(user, newData)
     }
 
+    def delete(user: String, prod: ProductName) = {
+      val order = getUsersProductsWithQuantityAndPrice(user)
+      val newData = order.filterNot( (tup) => tup._1 == prod )
+      data.put(user, newData)
+    }
+
     def addToOrder(user: String, prod: ProductName, q: Quantity) = {
       val order = getUsersProductsWithQuantityAndPrice(user)
       val newData = (prod, getProductPrice(prod), q) :: order
@@ -87,6 +93,10 @@ object App extends FinatraServer {
   }
 
   object UpdateService {
+    def delete(user: String, product: ProductName) = {
+      DataBase.delete(user, product)
+    }
+
     def deleteAll(user: String) = {
       DataBase.deleteAll(user)
     }
@@ -111,10 +121,29 @@ object App extends FinatraServer {
               UpdateService.put(user, product, quantity)
               render.plain("SUCCESS").toFuture
             }
-            case _ => log.error("unmached json payload") ;throw new BadRequest
+            case _ => log.error("unmatched json payload") ;throw new BadRequest
           }
         }
-        case _ => log.error("unmached content type") ;throw new BadRequest
+        case _ => log.error("unmatched content type") ;throw new BadRequest
+      }
+    }
+
+    delete("/order") { request =>
+      val user = request.headers().get(USER_HEADER)
+      log.info("content type:" + request.accepts )
+      respondTo(request) {
+        case _: ContentType.Json =>  {
+          val input = JSON.parseFull(request.contentString)
+          input match {
+            case Some(map: Map[String, Any]) => {
+              val product = map("product").asInstanceOf[ProductName]
+              UpdateService.delete(user, product)
+              render.status(200).toFuture
+            }
+            case _ => log.error("unmatched json payload") ;throw new BadRequest
+          }
+        }
+        case _ => log.error("unmatched content type") ;throw new BadRequest
       }
 
     }

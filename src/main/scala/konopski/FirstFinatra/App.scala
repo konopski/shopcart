@@ -48,6 +48,10 @@ object App extends FinatraServer {
     data.put("lk", List(("prod1", BigDecimal(12), 1 )))
     data.put("rw", List(("prod2", BigDecimal(20), 2 )))
 
+    def deleteAll(user: String) ={
+      data.put(user, List())
+    }
+
     def getProductPrice(prod: ProductName): Cash = {
       def randCash: Cash = random.nextInt(50)
       if(null == prices.get(prod)) prices.put(prod, randCash)
@@ -83,6 +87,10 @@ object App extends FinatraServer {
   }
 
   object UpdateService {
+    def deleteAll(user: String) = {
+      DataBase.deleteAll(user)
+    }
+
     def put(user: String, prod: ProductName, q: Quantity) = {
       if(DataBase.has(user, prod)) DataBase.updateQuantity(user, prod, q)
       else DataBase.addToOrder(user, prod, q)
@@ -109,6 +117,12 @@ object App extends FinatraServer {
         case _ => log.error("unmached content type") ;throw new BadRequest
       }
 
+    }
+
+    delete("/order/all") { request =>
+      val user = request.headers().get(USER_HEADER)
+      UpdateService.deleteAll(user)
+      render.status(200).toFuture
     }
 
     get("/order") { request =>

@@ -45,5 +45,13 @@ class AppSpec extends FlatSpecHelper {
     response.code should equal(200)
   }
 
+  "DELETE /order/all" should "respond 200" in {
+    delete("/order/all", headers=Map("X-USER" -> "rw"))
+    response.code should equal(200)
+    get("/order", headers=Map("X-USER" -> "any"))
+    response.body.replaceAll("\\s", "").contains("\"totalPrice\":0") should equal(true)
+    response.body.replaceAll("\\s", "").contains("\"products\":[]") should equal(true)
+
+  }
 
 }

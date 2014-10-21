@@ -125,6 +125,7 @@ object App extends FinatraServer {
     }
 
     error { request =>
+      log.error("see an error", request.error)
       request.error match {
         case Some(e:ArithmeticException) =>
           render.status(500).plain("whoops, go back to math class!").toFuture
@@ -147,13 +148,15 @@ object App extends FinatraServer {
       request.headerMap.get(USER_HEADER) match {
         case Some(user) => {
           log.info("logged: " + user)
+          service(request)
         }
         case None => {
           log.error("unauthorized " + request.remoteSocketAddress.getHostString)
           request.uri="/unauthorized"
+          service(request)
         }
       }
-      service(request)
+
     }
   }
 

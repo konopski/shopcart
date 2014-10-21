@@ -7,7 +7,8 @@ import com.twitter.finagle.http.{Response, Request}
 import com.twitter.finatra._
 import com.twitter.finatra.ContentType
 
-import scala.util.parsing.json.{JSONType, JSON}
+import scala.annotation.tailrec
+import scala.util.parsing.json.JSON
 
 object App extends FinatraServer {
 
@@ -22,6 +23,7 @@ object App extends FinatraServer {
                             totalPrice: Cash)
 
     def calcTotal(prods: List[(ProductName, Cash, Quantity)]) = {
+      @tailrec
       def calcTotal0(prods: List[(ProductName, Cash, Quantity)], acc: Cash): Cash = {
         def price = prods.head._2 * prods.head._3
 
@@ -99,7 +101,7 @@ object App extends FinatraServer {
               val product = map("product").asInstanceOf[ProductName]
               val quantity = map("quantity").asInstanceOf[Double].toInt
               UpdateService.put(user, product, quantity)
-              render.ok.toFuture
+              render.plain("SUCCESS").toFuture
             }
             case _ => log.error("unmached json payload") ;throw new BadRequest
           }
